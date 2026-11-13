@@ -33,14 +33,14 @@ main{padding-top:20px}
 .add{background:linear-gradient(135deg,#a80f1b,#d42c25);box-shadow:0 4px 10px #a80f1b25}
 .floating{background:linear-gradient(110deg,#790d18,#b91320 65%,#e45a1b);box-shadow:0 12px 28px #6b0c1744}
 .floating button{color:#8b111b}
-.btn{border-radius:13px;background:#fff0e5;color:#7a2022;border:1px solid #f0d9cb}
+ .btn{border-radius:13px;background:#fff0e5;color:#7a2022;border:1px solid #f0d9cb}
 .btn.primary{background:linear-gradient(135deg,#a80e1b,#d52a25);color:#fff;border:0;box-shadow:0 5px 12px #a80e1b25}
 .btn.dark{background:#68101a;color:#fff}
 .admin-hero{position:relative;overflow:hidden;border-radius:23px;padding:23px;background:linear-gradient(120deg,#650b14,#a8111e 65%,#ed721b);color:#fff;box-shadow:0 14px 30px #7b101c25}
 .admin-hero:after{content:"";position:absolute;right:-35px;top:-55px;width:220px;height:220px;border:22px solid #ffffff17;border-radius:50%;box-shadow:0 0 0 25px #ffffff0c,0 0 0 55px #ffffff08}
 .admin-hero h1{font-size:clamp(25px,5vw,34px);margin:5px 0}.admin-hero p{margin:0;color:#ffe3d4;max-width:500px}
 .admin-hero .eyebrow{color:#ffd28a}
- .admin-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:15px 0}
+.admin-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:15px 0}
 .overview-card{background:#fff;border:1px solid #f1ddd2;border-radius:17px;padding:14px;box-shadow:0 5px 15px #6510180d}
 .overview-card .ov-icon{width:34px;height:34px;border-radius:11px;background:#ffead9;color:#a50f1b;display:grid;place-items:center;font-size:18px;margin-bottom:8px}
 .overview-card b{display:block;font-size:23px;color:#74131c;line-height:1.1}.overview-card small{color:#887875}
@@ -78,7 +78,7 @@ main{padding-top:20px}
 <main id="adminView" class="hidden">
 <section class="admin-hero"><div class="eyebrow">SNDK ONLINE · PANEL PENGELOLAAN</div><h1>Selamat datang di Senandika</h1><p>Atur menu, tampilan kedai, dan pembayaran dalam satu tempat.</p><div style="margin-top:15px"><button class="btn" id="backCustomer">← Lihat Halaman Menu</button> <button class="btn" id="ownerLogout">Keluar</button></div></section>
 <div class="admin-overview">
-<div class="overview-card"><div class="ov-icon">☕</div><b id="overviewProducts">0</b><small>Produk terdaftar</small></div>
+ <div class="overview-card"><div class="ov-icon">☕</div><b id="overviewProducts">0</b><small>Produk terdaftar</small></div>
 <div class="overview-card"><div class="ov-icon">▦</div><b id="overviewGroups">0</b><small>Grup pilihan</small></div>
 <div class="overview-card"><div class="ov-icon">◉</div><b id="overviewCategories">0</b><small>Kategori menu</small></div>
 </div>
@@ -116,16 +116,19 @@ const firebaseConfig = {
 const OWNER_EMAIL = 'kedai.sndk@gmail.com';
 let sndkAuth = null;
 let ownerAuthReady = false;
+let sndkPersistenceReady = Promise.resolve();
 try {
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   sndkAuth = firebase.auth();
-  sndkAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.warn('Auth persistence:', err));
+  // Pastikan sesi login tersimpan sebelum memulai alur Google redirect.
+  sndkPersistenceReady = sndkAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  sndkPersistenceReady.catch(err => console.error('Auth persistence:', err));
 } catch (err) {
   console.error('Firebase initialization failed:', err);
 }
 
 const DEFAULT_PRODUCTS=[
-{id:1,n:'Chicken Crispy',p:15000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:2,n:'Chicken Geprek',p:17000,c:'Makanan',e:'🌶️',optionGroupIds:[]},{id:3,n:'Chicken Geprek Matah',p:18000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:4,n:'Chicken Lava',p:19000,c:'Makanan',e:'🔥',optionGroupIds:[]},{id:5,n:'Chicken Lava Cheese',p:22000,c:'Makanan',e:'🧀',optionGroupIds:[]},{id:6,n:'Korean Chicken',p:20000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:7,n:'Korean Chicken Cheese',p:23000,c:'Makanan',e:'🧀',optionGroupIds:[]},{id:8,n:'Chicken Karage Original',p:16000,c:'Makanan',e:'🍱',optionGroupIds:[]},{id:9,n:'Chicken Spicy Karage',p:18000,c:'Makanan',e:'🌶️',optionGroupIds:[]},{id:10,n:'Es Teh',p:4000,c:'Minuman',e:'🥤',optionGroupIds:[]},{id:11,n:'Es Nescafe',p:8000,c:'Minuman',e:'☕',optionGroupIds:[]},{id:12,n:'Nutrisari Jeruk',p:6000,c:'Minuman',e:'🍊',optionGroupIds:[]}
+ {id:1,n:'Chicken Crispy',p:15000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:2,n:'Chicken Geprek',p:17000,c:'Makanan',e:'🌶️',optionGroupIds:[]},{id:3,n:'Chicken Geprek Matah',p:18000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:4,n:'Chicken Lava',p:19000,c:'Makanan',e:'🔥',optionGroupIds:[]},{id:5,n:'Chicken Lava Cheese',p:22000,c:'Makanan',e:'🧀',optionGroupIds:[]},{id:6,n:'Korean Chicken',p:20000,c:'Makanan',e:'🍗',optionGroupIds:[]},{id:7,n:'Korean Chicken Cheese',p:23000,c:'Makanan',e:'🧀',optionGroupIds:[]},{id:8,n:'Chicken Karage Original',p:16000,c:'Makanan',e:'🍱',optionGroupIds:[]},{id:9,n:'Chicken Spicy Karage',p:18000,c:'Makanan',e:'🌶️',optionGroupIds:[]},{id:10,n:'Es Teh',p:4000,c:'Minuman',e:'🥤',optionGroupIds:[]},{id:11,n:'Es Nescafe',p:8000,c:'Minuman',e:'☕',optionGroupIds:[]},{id:12,n:'Nutrisari Jeruk',p:6000,c:'Minuman',e:'🍊',optionGroupIds:[]}
 ];
 let products=load('sndk_products_v1',DEFAULT_PRODUCTS),groups=load('sndk_option_groups_v1',[]),cart=[],activeCategory='Semua',editingId=null;
 let categories=load('sndk_categories_v1',[...new Set(products.map(p=>String(p.c||'Lainnya').trim()).filter(Boolean))]);
@@ -156,16 +159,16 @@ function useCurrentLocation(){if(!navigator.geolocation){setMapStatus('Perangkat
 function sendOrder(){const name=$('custName').value.trim(),type=$('orderType').value,table=$('tableNo').value.trim(),address=$('deliveryAddress').value.trim(),phone=$('custPhone').value.trim(),pay=document.querySelector('[name="payment"]:checked')?.value||'Tunai',note=$('orderNote').value.trim();if(!name){alert('Nama pelanggan wajib diisi.');return}if(type==='Dine in'&&!table){if(!confirm('Nomor meja belum diisi. Tetap lanjut?'))return}if(type==='Delivery'&&!selectedDeliveryLocation){alert('Pilih titik lokasi pengantaran pada peta terlebih dahulu.');return}if(!settings.wa){alert('Nomor WhatsApp Kedai belum diatur. Buka Admin → Pengaturan.');return}const t=cartTotals(),orderId='SNDK-'+Date.now().toString().slice(-7);let lines=[`*PESANAN BARU ${orderId}*`,`Kedai Senandika`,`Nama: ${name}`,`Jenis: ${type}`,...(table?[`Meja: ${table}`]:[]),...(address?[`Patokan alamat: ${address}`]:[]),...(type==='Delivery'&&selectedDeliveryLocation?[`Koordinat: ${selectedDeliveryLocation.lat.toFixed(6)}, ${selectedDeliveryLocation.lng.toFixed(6)}`,`Google Maps: https://www.google.com/maps?q=${selectedDeliveryLocation.lat},${selectedDeliveryLocation.lng}`]:[]),...(phone?[`WA pelanggan: ${phone}`]:[]),'', '*DETAIL PESANAN*'];cart.forEach((x,i)=>{lines.push(`${i+1}. ${x.n} x${x.qty} — ${money(x.unitPrice*x.qty)}`);x.selectedOptions.forEach(g=>lines.push(`   - ${g.group}: ${g.values.map(v=>v.name+(v.price?' (+'+money(v.price)+')':'')).join(', ')}`));if(x.note)lines.push(`   Catatan: ${x.note}`)});lines.push('',`*TOTAL: ${money(t.total)}*`,`Pembayaran: ${pay}`,...(note?[`Catatan: ${note}`]:[]),'Mohon konfirmasi pesanan.');const url='https://wa.me/'+settings.wa.replace(/\D/g,'')+'?text='+encodeURIComponent(lines.join('\n'));window.open(url,'_blank');const history=load('sndk_online_orders_local',[]);history.unshift({id:orderId,name,type,table,address,deliveryLocation:selectedDeliveryLocation,pay,total:t.total,createdAt:new Date().toISOString(),items:cart});localStorage.setItem('sndk_online_orders_local',JSON.stringify(history));cart=[];closeModal();renderCartBar();alert('Pesanan disiapkan. Periksa dan tekan Kirim di WhatsApp.');}
 function adminOpenPanel(){ $('customerView').classList.add('hidden');$('floatingCart').style.display='none';$('adminView').classList.remove('hidden');renderAdmin();$('waNumber').value=settings.wa;$('shopName').value=settings.shop;showPreview('logoPreview',settings.logo);showPreview('backgroundPreview',settings.background);$('nmidInput').value=settings.nmid||'';showPreview('qrisPreview',settings.qrisImage);applyBranding()}
 function adminOpen(){
-if(sndkAuth && sndkAuth.currentUser && sndkAuth.currentUser.email===OWNER_EMAIL && sndkAuth.currentUser.emailVerified){adminOpenPanel();return;}
+  if(sndkAuth && sndkAuth.currentUser && sndkAuth.currentUser.email===OWNER_EMAIL && sndkAuth.currentUser.emailVerified){adminOpenPanel();return;}
   showModal('Login Owner', `<p class="muted">Masuk menggunakan akun Google pemilik Kedai Senandika.</p><p><b>${OWNER_EMAIL}</b></p><button class="btn primary" id="googleOwnerLogin" style="width:100%;margin-top:12px">Masuk dengan Google</button><p class="muted" style="margin-top:10px">Akses panel hanya untuk akun owner yang terdaftar.</p>`);
   $('googleOwnerLogin').onclick=async()=>{
     if(!sndkAuth){alert('Firebase belum berhasil dimuat. Periksa koneksi internet lalu muat ulang halaman.');return;}
-    try{sessionStorage.setItem('sndk_owner_login_pending','1');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await sndkAuth.signInWithRedirect(provider);}
+    try{await sndkPersistenceReady;sessionStorage.setItem('sndk_owner_login_pending','1');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await sndkAuth.signInWithRedirect(provider);}
     catch(err){sessionStorage.removeItem('sndk_owner_login_pending');alert('Login gagal: '+(err.message||err));}
   };
 }
 function showCustomerAfterLogout(){
-  $('adminView').classList.add('hidden');$('customerView').classList.remove('hidden');$('floatingCart').style.display=cart.length?'flex':'none';render();
+ $('adminView').classList.add('hidden');$('customerView').classList.remove('hidden');$('floatingCart').style.display=cart.length?'flex':'none';render();
 }
 function renderAdmin(){if($('overviewProducts'))$('overviewProducts').textContent=products.length;if($('overviewGroups'))$('overviewGroups').textContent=groups.length;if($('overviewCategories'))$('overviewCategories').textContent=categories.length;renderCategories();$('adminProducts').innerHTML=products.map(p=>`<div class="admin-row"><div style="display:flex;align-items:center;gap:10px">${p.image?`<img src="${p.image}" style="width:48px;height:48px;object-fit:cover;border-radius:9px">`:'<div style="width:48px;height:48px;border-radius:9px;background:#f4f0ea;display:grid;place-items:center">Foto</div>'}<div><b>${esc(p.n)}</b><div class="muted">${money(p.p)} · ${esc(p.c)} · ${(p.optionGroupIds||[]).length} grup opsi</div></div></div><button class="btn" data-edit="${p.id}">Edit</button></div>`).join('')||'<p class="muted">Belum ada produk.</p>';$('adminProducts').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editProduct(Number(b.dataset.edit)))}
 function editProduct(id){const p=id?products.find(x=>x.id===id):{id:null,n:'',p:0,c:categories[0]||'Makanan',e:'',image:'',optionGroupIds:[]};let productImage=p.image||'';const categoryOptions=categories.map(c=>`<option value="${esc(c)}" ${String(p.c||'')===String(c)?'selected':''}>${esc(c)}</option>`).join('');const groupChecks=groups.map(g=>`<label class="option"><input type="checkbox" value="${g.id}" class="prod-group" ${(p.optionGroupIds||[]).some(x=>String(x)===String(g.id))?'checked':''}> ${esc(g.name)}</label>`).join('');showModal(id?'Edit produk':'Tambah produk',`<label>Nama produk</label><input class="field" id="pName" value="${esc(p.n)}"><label>Harga (Rp)</label><input class="field" id="pPrice" type="number" min="0" value="${p.p}"><label>Kategori</label><select class="field" id="pCat">${categoryOptions}</select><label>Foto produk</label><input class="field" id="pImageUpload" type="file" accept="image/*"><img id="pImagePreview" class="preview-img ${productImage?'':'hidden'}" ${productImage?`src="${productImage}"`:''} alt="Pratinjau foto produk"><button class="btn" type="button" id="removeProductImage" style="margin-top:7px">Hapus foto</button><p class="muted">Foto akan otomatis diperkecil. Gunakan foto menu yang jelas dan terang.</p><label>Grup pilihan pelanggan</label>${groupChecks||'<p class="muted">Belum ada grup pilihan. Tambahkan melalui tab Grup Pilihan.</p>'}<button class="btn primary" style="width:100%;margin-top:15px" id="saveProduct">Simpan produk</button>${id?'<button class="btn" style="width:100%;margin-top:8px" id="deleteProduct">Hapus produk</button>':''}`);$('pImageUpload').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{productImage=await imageToDataUrl(f,850,.74);showPreview('pImagePreview',productImage)}catch(err){alert(err.message)}};$('removeProductImage').onclick=()=>{productImage='';showPreview('pImagePreview','');$('pImageUpload').value=''};$('saveProduct').onclick=()=>{const n=$('pName').value.trim(),price=Number($('pPrice').value);if(!n||price<0||!Number.isFinite(price)){alert('Nama dan harga produk wajib benar.');return}const item={id:p.id||Math.max(0,...products.map(x=>Number(x.id)||0))+1,n,p:price,c:$('pCat').value||categories[0]||'Lainnya',e:p.e||'',image:productImage,optionGroupIds:[...document.querySelectorAll('.prod-group:checked')].map(x=>Number(x.value))};if(id)products=products.map(x=>x.id===id?item:x);else products.push(item);try{save();closeModal();render();renderAdmin()}catch(err){alert('Penyimpanan gagal. Kemungkinan ruang penyimpanan browser penuh. Coba gunakan foto lebih kecil atau hapus beberapa foto.') }};if(id)$('deleteProduct').onclick=()=>{if(confirm('Hapus produk ini?')){products=products.filter(x=>x.id!==id);save();closeModal();render();renderAdmin()}}}
@@ -183,7 +186,7 @@ if(sndkAuth){
     console.error('Google sign-in redirect:',err);
     if(err.code!=='auth/no-auth-event') alert('Login Google belum berhasil: '+(err.message||err));
   });
- sndkAuth.onAuthStateChanged(async user=>{
+  sndkAuth.onAuthStateChanged(async user=>{
     ownerAuthReady=true;
     if(!user)return;
     if(user.email!==OWNER_EMAIL || !user.emailVerified){
